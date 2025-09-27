@@ -2,7 +2,7 @@
   description = "Flake to manage Dark Matter grub themes from Vandal";
 
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
