@@ -1,26 +1,21 @@
 {
   description = "Flake to manage Dark Matter grub themes from Vandal";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
     flake-compat = {
       url = "github:edolstra/flake-compat";
       flake = false;
     };
   };
-
   outputs = { self, nixpkgs, flake-compat }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
     in
-    with nixpkgs.lib;
     {
-      nixosModule = { config, ... }:
+      nixosModules.default = { config, lib, ... }:
         let
           cfg = config.boot.loader.grub.darkmatter-theme;
-
           darkmatter-grub-theme = pkgs.stdenv.mkDerivation {
             name = "darkmatter-grub-theme";
             src = ./.;
@@ -37,16 +32,16 @@
         {
           options = {
             boot.loader.grub.darkmatter-theme = {
-              enable = mkOption {
-                type = types.bool;
+              enable = lib.mkOption {
+                type = lib.types.bool;
                 default = false;
                 example = true;
                 description = ''
                   Enable Dark Matter grub theme from Vandal
                 '';
               };
-              style = mkOption {
-                type = types.enum [
+              style = lib.mkOption {
+                type = lib.types.enum [
                   "arch"
                   "archstrike"
                   "artix"
@@ -93,31 +88,33 @@
                   "dtos"
                   "nobara"
                 ];
+                default = "nixos";
                 example = "nixos";
                 description = ''
                   The theme to use for grub
                 '';
               };
-              icon = mkOption {
-                type = types.enum [ "color" "white" ];
+              icon = lib.mkOption {
+                type = lib.types.enum [ "color" "white" ];
                 default = "color";
                 example = "color";
               };
-              resolution = mkOption {
-                type = types.enum [ "1080p" "1440p" ];
+              resolution = lib.mkOption {
+                type = lib.types.enum [ "1080p" "1440p" ];
                 default = "1080p";
                 example = "1080p";
               };
-
             };
           };
-
-          config = mkIf cfg.enable (mkMerge [{
+          config = lib.mkIf cfg.enable {
             environment.systemPackages = [ darkmatter-grub-theme ];
             boot.loader.grub = {
               theme = "${darkmatter-grub-theme}/grub/theme";
             };
-          }]);
+          };
         };
+      
+      # For backward compatibility
+      nixosModule = self.nixosModules.default;
     };
 }
